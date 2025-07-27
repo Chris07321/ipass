@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>永續發展證照刷題 App</title>
+    <!-- 以下是新增的 PWA 相關標籤 -->
+    <meta name="theme-color" content="#059669"/>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        .main-btn {
+            @apply w-full text-left p-4 sm:p-5 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-transparent dark:hover:bg-gray-700 transition-all duration-300 flex justify-between items-center;
+        }
+        .main-btn:disabled {
+            @apply bg-gray-100 dark:bg-gray-800 opacity-60 cursor-not-allowed hover:shadow-none;
+        }
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .correct {
+            background-color: #22c55e !important; /* green-500 */
+            color: white !important;
+            border-color: #16a34a; /* green-600 */
+        }
+        .incorrect {
+            background-color: #ef4444 !important; /* red-500 */
+            color: white !important;
+            border-color: #dc2626; /* red-600 */
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.9;
+        }
+        .bank-item {
+            @apply bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 flex items-center justify-center min-h-screen p-4">
+
+    <div id="app-container" class="w-full max-w-2xl mx-auto">
+        
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-2">永續發展證照</h1>
+                <p class="text-lg text-gray-500 dark:text-gray-400">刷題練習</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-xl space-y-4">
+                <button id="start-quiz-btn" class="main-btn border-l-4 border-blue-500">
+                    <div>
+                        <h2 class="font-bold text-lg text-blue-600 dark:text-blue-400">開始測驗</h2>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">從題庫中隨機抽取 30 題</p>
+                    </div>
+                    <div class="text-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </button>
+                <button id="review-incorrect-btn" class="main-btn border-l-4 border-green-500">
+                    <div>
+                        <h2 class="font-bold text-lg text-green-600 dark:text-green-400">錯題複習</h2>
+                        <p id="review-count-text" class="text-sm text-gray-600 dark:text-gray-300">您目前有 0 題錯題</p>
+                    </div>
+                    <div class="text-green-500">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                           <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                         </svg>
+                    </div>
+                </button>
+                <button id="view-bank-btn" class="main-btn border-l-4 border-purple-500">
+                    <div>
+                        <h2 class="font-bold text-lg text-purple-600 dark:text-purple-400">瀏覽完整題庫</h2>
+                        <p id="bank-count-text" class="text-sm text-gray-600 dark:text-gray-300">共 0 題</p>
+                    </div>
+                     <div class="text-purple-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 16c1.255 0 2.443-.29 3.5-.804V4.804zM14.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 0114.5 16c1.255 0 2.443-.29 3.5-.804V4.804A7.968 7.968 0 0014.5 4z" />
+                        </svg>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10">
+                <div id="quiz-header">
+                    <h1 id="quiz-title" class="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white mb-6">測驗練習</h1>
+                    <div id="progress-container" class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-4">
+                        <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <div id="progress-text" class="text-sm text-center text-gray-600 dark:text-gray-400 mb-6"></div>
+                </div>
+                <div id="question-area" class="mb-6">
+                    <p id="question-text" class="text-lg md:text-xl font-semibold leading-relaxed"></p>
+                </div>
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"></div>
+                <div id="feedback-area" class="hidden min-h-[80px] p-4 rounded-lg bg-gray-100 dark:bg-gray-700">
+                    <h3 id="feedback-title" class="font-bold text-lg mb-2"></h3>
+                    <p id="feedback-explanation" class="text-gray-700 dark:text-gray-300"></p>
+                </div>
+                <div id="navigation-area" class="mt-8 flex justify-between items-center">
+                    <button id="quit-quiz-btn" class="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition">返回主選單</button>
+                    <button id="next-btn" class="hidden bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 transition-transform transform hover:scale-105">下一題</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden text-center bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10">
+            <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-4">測驗完成！</h2>
+            <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">你的成績：</p>
+            <p id="score-text" class="text-5xl font-bold text-blue-600 mb-2">0 / 0</p>
+            <p id="incorrect-count-text" class="text-md text-red-500 mb-8">0 題答錯</p>
+            <div class="space-y-4 max-w-sm mx-auto">
+                <button id="restart-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition">重新測驗一次</button>
+                <button id="review-session-incorrect-btn" class="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition">複習本次錯題</button>
+                <button id="back-to-menu-btn-result" class="w-full bg-gray-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-700 transition">返回主選單</button>
+            </div>
+        </div>
+
+        <!-- Question Bank Screen -->
+        <div id="bank-screen" class="hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-10">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">完整題庫</h2>
+                    <button id="back-to-menu-btn-bank" class="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition">返回主選單</button>
+                </div>
+                <div id="bank-content" class="space-y-4 h-[70vh] overflow-y-auto pr-2">
+                    <!-- All questions will be listed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const QUIZ_LENGTH = 30;
+        const rawData = `
+"1. 2023年全球年平均氣溫比工業化前（1850-1900年）高多少？\nA. 1.15°C\nB. 1.45°C\nC. 1.75°C\nD. 2.0°C",B,"根據簡報，2023年全球年平均氣溫比工業化前高1.45±0.12°C。"
+"2. 極地氣溫上升速度至少是全球氣溫上升速度的幾倍？\nA. 相同\nB. 1倍\nC. 2倍\nD. 3倍",C,"簡報指出極地氣溫上升速度至少是全球的2倍。"
+"3. 根據IPCC的建議，CO2濃度應不超過多少ppm以控制溫升2°C？\nA. 350ppm\nB. 400ppm\nC. 450ppm\nD. 500ppm",C,"IPCC建議控制CO2濃度不超過450ppm，以控制溫升不超過2°C。"
+"4. 以下哪一項不屬於主要溫室氣體？\nA. CO2\nB. CH4\nC. O2\nD. N2O",C,"O2不是溫室氣體，其餘皆屬主要溫室氣體。"
+"5. 全球暖化潛勢值（GWP）常以哪一種氣體作為基準？\nA. 甲烷\nB. 氧氣\nC. 二氧化碳\nD. 氫氣",C,"GWP值通常以二氧化碳（CO2）為基準。"
+"6. 台灣的減碳目標是在2050年達到什麼？\nA. 碳中和\nB. 淨零排放\nC. 碳達峰\nD. 碳平衡",B,"台灣的目標是2050年淨零排放。"
+"7. 2021年台灣的總溫室氣體排放量約為多少百萬公噸CO2e？\nA. 200\nB. 250\nC. 297\nD. 350",C,"2021年台灣的總溫室氣體排放量約為297百萬公噸CO2e。"
+"8. 台灣的能源轉型政策中，計畫在2025年再生能源發電占比達到多少？\nA. 10%\nB. 15%\nC. 20%\nD. 25%",C,"台灣計畫在2025年再生能源發電占比達到20%。"
+"9. 台灣的碳定價機制中，碳費的起徵點是多少？\nA. 2.5萬噸CO2e/年\nB. 5萬噸CO2e/年\nC. 10萬噸CO2e/年\nD. 15萬噸CO2e/年",A,"碳費的起徵點為年排放量達2.5萬噸CO2e。"
+"10. 根據台灣的氣候變遷因應法，以下哪項不是主要的政策工具？\nA. 碳費\nB. 總量管制與排放交易\nC. 國際合作\nD. 個人碳稅",D,"個人碳稅目前不是台灣氣候變遷因應法中的主要政策工具。"
+"1. 哪一項不是推動抵換類型計畫的好處？\nA. 增加全球二氧化碳的總量\nB. 刺激低碳技術的發展\nC. 為減碳提供經濟誘因\nD. 幫助國家達到排放目標",A,"增加全球碳排放顯然與減碳目標背道而馳。"
+"2. 哪一項不是環境部認可的減量政策工具？\nA. 碳費\nB. 總量管制排放交易\nC. 用國際自願碳權抵免碳費\nD. 環評增量抵換",C,"環境部未認可使用國際自願碳權抵免碳費。"
+"3. 導入PAS2060的碳中和應用無法達到哪個效益？\nA. 量化及減少溫室氣體排放\nB. 提升聲譽與風險管控\nC. 經由抵換達到碳中和可符合歐盟CBAM碳關稅抵減\nD. 鑑別效率不佳領域改善整體表現",C,"CBAM目前不接受自願碳權作為抵減憑證。"
+"4. SBTi認證審核的減碳目標應符合哪個情境？\nA. 0.5°C\nB. 1.0°C\nC. 1.5°C\nD. 2°C",C,"SBTi標準以1.5°C情境為主流減碳目標。"
+"5. 下列哪一項不是歐盟CBAM管制產品？\nA. 氫\nB. 肥料\nC. 鋼鐵\nD. 塑膠",D,"塑膠目前不在歐盟CBAM第一階段的管制清單中。"
+"以下哪一項不是《京都議定書》規範的溫室氣體？\nA) 二氧化碳 (CO2)\nB) 氦氣 (He)\nC) 甲烷 (CH4)\nD) 六氟化硫 (SF6)",B,"《京都議定書》規範的溫室氣體包括 CO2, CH4, N2O, HFCs, PFCs, SF6 和 NF3，氦氣 (He) 並未列入。"
+"根據《氣候變遷因應法》，企業應依規定何時完成溫室氣體盤查登錄？\nA) 每年3月1日前\nB) 每年4月30日前\nC) 每年10月31日前\nD) 每年12月31日前",B,"根據法規，企業應於每年4月30日前完成溫室氣體盤查登錄。"
+"下列哪一項屬於範疇1的溫室氣體排放？\nA) 企業生產過程中直接排放的CO2\nB) 企業所購買的電力間接排放的CO2\nC) 供應鏈上游的碳排放\nD) 消費者使用企業產品所產生的排放",A,"範疇1的排放指企業直接產生的溫室氣體，例如生產過程中排放的 CO2。"
+"依據《溫室氣體盤查登錄及查驗管理辦法》，企業盤查排放量時可使用哪種方法？\nA) 排放係數法\nB) 質量平衡法\nC) 直接監測法\nD) 以上皆是",D,"企業可採用排放係數法、質量平衡法或直接監測法進行排放量盤查。"
+"企業在選擇溫室氣體查證機構時，應優先考量哪個標準？\nA) 具有 ISO 14065 或 ISO/IEC 17029 認證\nB) 由企業自行指定\nC) 只需經過員工內部投票同意\nD) 任何會計公司皆可執行",A,"企業應選擇具備 ISO 14065 或 ISO/IEC 17029 認證的機構，以確保查證品質。"
+"企業在計算燃料燃燒產生的排放量時，應使用以下哪種方法？\nA) 直接監測法\nB) 隨機估算法\nC) 依據企業財務報表推算\nD) 以燃料用量乘以低位熱值與排放係數",D,"燃料燃燒排放量應依據燃料用量、低位熱值與排放係數來計算，以確保數據的準確性。"
+"以下哪種方法最適合企業進行直接溫室氣體監測？\nA) 排放係數法\nB) 質量平衡法\nC) 直接監測法\nD) 估算法",C,"直接監測法透過即時監測排氣濃度和流率來計算排放量，具有最高的準確性。"
+"以下哪一項是排放係數法的計算公式？\nA) 活動數據 × 排放係數 × 全球暖化潛勢值\nB) 企業總收入 ÷ 排放量\nC) 企業碳足跡 × 社會影響指數\nD) 員工數 × 工時",A,"排放係數法的計算公式為活動數據乘以排放係數，再乘以全球暖化潛勢值 (GWP)。"
+"1. 何謂產品碳足跡？\n(A) 產品在運輸過程中的能耗\n(B) 產品在整個生命週期內的溫室氣體排放總量\n(C) 產品的成本計算方式\n(D) 產品的市場銷售數量",B,"產品碳足跡指的是產品在整個生命週期內產生的溫室氣體排放總量，通常以 CO2e 表示。"
+"2. ISO 14067:2018 的主要目的是？\n(A) 訂定國際貿易標準\n(B) 提供產品碳足跡的計算與核查指南\n(C) 限制碳排放總量\n(D) 監管企業財務報表",B,"ISO 14067:2018 主要針對產品碳足跡的計算與核查提供標準指引。"
+"3. 以下哪項是生命週期評估 (LCA) 的核心概念？\n(A) 只計算生產階段的碳排放\n(B) 評估產品從原料取得到廢棄處理的環境影響\n(C) 僅考慮產品的市場價格\n(D) 只關注產品的運輸過程",B,"生命週期評估 (LCA) 是評估產品從原料取得、製造、使用到廢棄的全生命週期環境影響。"
+"4. 全球目前有多少個國家已宣示 2050 年達到淨零排放？\n(A) 120 個\n(B) 145 個\n(C) 160 個\n(D) 198 個",B,"全球 198 個國家中，已有 145 個國家宣示 2050 年達到淨零排放。"
+"5. CBAM 過渡期將於何時結束？\n(A) 2025 年底\n(B) 2026 年底\n(C) 2027 年底\n(D) 2030 年底",A,"歐盟 CBAM 過渡期為 2023 年至 2025 年底。"
+"6. 台灣的「氣候變遷因應法」於何時三讀通過？\n(A) 2022 年 1 月\n(B) 2023 年 1 月\n(C) 2023 年 7 月\n(D) 2024 年 1 月",B,"立法院於 2023 年 1 月 10 日三讀通過《氣候變遷因應法》。"
+"7. 碳盤查中的「範疇三」指的是？\n(A) 公司直接排放\n(B) 輸入能源的間接排放\n(C) 其他間接排放 (如供應鏈)\n(D) 產品使用階段的排放",C,"範疇三涵蓋了企業價值鏈中產生的所有其他間接排放。"
+"8. 何謂「碳權」？\n(A) 企業的排碳許可\n(B) 經認證的減碳量，可進行交易\n(C) 企業的碳排放稅\n(D) 企業的碳排放總量",B,"碳權是經過認證的溫室氣體減量或移除單位，可用於交易或抵換。"
+"9. PAS 2060 是一項關於什麼的標準？\n(A) 碳足跡計算\n(B) 碳中和宣告\n(C) 能源管理系統\n(D) 環境管理系統",B,"PAS 2060 是實現碳中和並對其進行宣告的規範性文件。"
+"10. 企業可透過何種方式降低產品碳足跡？\n(A) 使用再生能源與提高能源效率\nB. 增加產品價格\nC. 降低市場廣告費用\nD. 增加產品包裝層數",A,"企業可透過使用再生能源與提高能源效率來降低產品碳足跡。"
+"11. ISO 14064-1 主要規範？\n(A) 組織的溫室氣體盤查\n(B) 產品的市場營銷策略\n(C) 企業的財務報表\n(D) 企業的員工薪資管理",A,"ISO 14064-1 主要規範組織層級的溫室氣體盤查與報告要求。"
+"12. 影響碳足跡的主要因素包括？\n(A) 產品的運輸距離、原料來源及能源使用\n(B) 企業的廣告支出\n(C) 產品的市場銷售量\n(D) 企業的股價變動",A,"碳足跡受產品運輸距離、原料來源及能源使用等因素影響。"
+"13. 企業進行碳足跡計算後的下一步通常是？\n(A) 改善產品設計以降低碳排放\n(B) 增加市場推廣\n(C) 提高員工薪資\n(D) 降低產品原料成本",A,"企業可以透過改善產品設計、提升能源效率來降低碳足跡。"
+"14. 企業應如何確保碳足跡盤查數據的準確性？\n(A) 使用實際測量數據，避免僅依賴估算值\n(B) 依據市場行銷報告進行分析\n(C) 只需核對財務報表數據\n(D) 參考競爭對手的數據",A,"企業應優先使用實際測量數據，以確保數據的準確性與可靠性。"
+"根據《氣候變遷因應法》,國家溫室氣體的長期減量目標為何?\nA. 2030年減少50%\nB. 2040年減少80%\nC. 2050年淨零排放\nD. 2060年碳中和",C,"根據《氣候變遷因應法》，我國的長期減量目標是2050年達到淨零排放。"
+"企業未依規定進行溫室氣體盤查登錄,可能面臨的罰則為?\nA. 罰鍰20萬元至200萬元\nB. 罰鍰10萬元至100萬元\nC. 僅收到警告\nD. 無罰則",B,"根據《氣候變遷因應法》第49條，未依規定盤查登錄及查驗者，處新臺幣10萬元以上100萬元以下罰鍰。"
+"依據《IFRS S2 氣候相關揭露》規範,上市櫃公司應於何時完成範疇3的盤查?\nA. 2025年\nB. 2027年\nC. 2029年\nD. 2031年",C,"根據金管會「上市櫃公司永續發展路徑圖」，全體上市櫃公司應於2029年完成溫室氣體範疇3盤查。"
+"企業進行溫室氣體盤查時,應將排放量以何種單位表示?\nA. 公斤二氧化碳當量\nB. 公噸二氧化碳當量\nC. 立方公尺\nD. 百萬噸碳當量",B,"溫室氣體排放量應以「公噸二氧化碳當量 (tCO2e)」作為報告單位。"
+"《巴黎協定》要求各國提出的減量目標稱為?\nA. 國際碳排放標準(ICS)\nB. 國家自主貢獻(NDCs)\nC. 全球氣候條約(GCT)\nD. 環境可持續發展計畫(ESDP)",B,"《巴黎協定》的核心是由下而上，由各國根據自身情況提交「國家自主貢獻」(Nationally Determined Contributions, NDCs)。"
+"全球暖化潛勢(GWP)是什麼?\nA. 一種測量氣候變遷影響的標準\nB. 衡量溫室氣體相對於CO2的輻射衝擊指標\nC. 溫室氣體濃度的測量方式\nD. 計算二氧化碳總排放量的方法",B,"全球暖化潛勢 (Global Warming Potential, GWP) 是衡量特定溫室氣體在一段時間內（通常為100年）吸收熱能的能力相對於二氧化碳的倍數。"
+"ISO 14064-1:2018 規範的主要內容包括?\nA. 溫室氣體排放與移除的邊界設定\nB. 企業財務報表審查\nC. 產品品質管理規範\nD. 工業安全標準",A,"ISO 14064-1:2018 提供了組織層級溫室氣體排放與移除的量化、報告、邊界設定及管理的詳細規範。"
+"報告邊界(Reporting boundary)是指?\nA. 組織財務報告的範圍\nB. 企業營運產生的所有碳排放\nC. 需納入溫室氣體報告的排放範圍\nD. 碳排放監測設備的技術範圍",C,"報告邊界界定了哪些排放源和活動需要被納入組織的溫室氣體報告中。"
+"企業在進行溫室氣體盤查時,哪一項是必要的第一步?\nA. 直接計算排放量\nB. 獲得高階主管的支持與承諾\nC. 立即編寫盤查報告書\nD. 申請政府補助",B,"獲得高階主管的支持與承諾是成功推動溫室氣體盤查的關鍵第一步，以確保資源和跨部門合作到位。"
+"碳盤查工作小組的主要職責是什麼?\nA. 監督企業財務報表\nB. 設計企業營運策略\nC. 收集活動數據並計算排放量\nD. 提供法律諮詢服務",C,"盤查工作小組的核心任務是執行盤查的技術工作，包括設定邊界、收集數據、計算排放量及編寫報告。"
+"企業應依據哪個標準分類直接與間接排放源?\nA. IFRS 9\nB. GHG Protocol 或ISO 14064-1:2018\nC. GAAP 會計準則\nD. ISO 9001 品質管理系統",B,"GHG Protocol (溫室氣體盤查議定書) 和 ISO 14064-1 是國際上最廣泛使用的溫室氣體盤查標準，定義了直接與間接排放的分類。"
+"內部查證的主要目的為何?\nA. 監測企業財務狀況\nB. 確保溫室氣體數據的準確性與完整性\nC. 增加企業營運利潤\nD. 控制市場競爭對手",B,"內部查證是在進行外部查證前的品質控制步驟，旨在確保盤查數據和報告的品質。"
+"組織在選擇基準年時應考慮哪個因素?\nA. 企業成立的第一年\nB. 能獲得可信數據的最早時間點\nC. 企業財務表現最佳的年份\nD. 主管隨機決定的年份",B,"基準年應選擇一個具有代表性且能取得完整、可靠數據的最早年份，作為後續減量成效的比較基礎。"
+"控制權法與股權比例法的主要區別是什麼?\nA. 控制權法依財務或營運控制權決定邊界,股權比例法按股權比例計算排放量\nB. 控制權法僅計算直接排放,股權比例法僅計算間接排放\nC. 控制權法適用於小企業,股權比例法適用於大企業\nD. 兩者沒有區別",A,"控制權法是將組織擁有100%控制權的營運設施之排放量完全納入；股權比例法則依組織持有的股權比例來計算應承擔的排放量。"
+"RE100 計畫的主要目標是?\nA. 降低企業稅負\nB. 促使企業改用100%再生能源\nC. 增加企業碳排放\nD. 幫助企業提高市場競爭力",B,"RE100是一項全球性的企業再生能源倡議，參與企業承諾在2050年前達成100%使用再生能源的目標。"
+"產品類別規則(PCR)在碳足跡計算中的作用是?\nA. 訂定特定產品類別的碳足跡計算方法\nB. 規定企業稅率\nC. 控制市場價格\nD. 設定產品的生產數量",A,"產品類別規則 (Product Category Rules, PCR) 針對特定產品類別，提供一致性的生命週期評估與碳足跡計算方法論，確保比較基礎的一致性。"
+"生命週期衝擊評估(LCIA)的主要目的是?\nA. 評估LCA 盤查數據對環境的潛在影響\nB. 計算企業的盈利能力\nC. 評估企業的市場價值\nD. 測試企業的產品品質",A,"生命週期衝擊評估 (Life Cycle Impact Assessment, LCIA) 是將盤查清單中的數據（如資源使用、汙染物排放）轉化為對環境的潛在影響，例如全球暖化、酸雨等。"
+"碳足跡與碳盤查的主要區別為何?\nA. 碳足跡關注產品,碳盤查關注企業或組織\nB. 碳盤查僅適用於發電廠\nC. 碳足跡僅適用於食品產業\nD. 碳盤查與碳足跡無關",A,"碳足跡通常針對特定「產品或服務」的整個生命週期；而組織層級的碳盤查則關注整個「企業或組織」的營運邊界。"
+"聯合國氣候變化綱要公約於哪一年通過?\nA. 1988年\nB. 1992年\nC. 1995年\nD. 2000年",B,"《聯合國氣候變化綱要公約》（UNFCCC）於1992年在里約地球高峰會上通過。"
+"巴黎協定的主要目標為限制全球暖化於多少度以下?\nA. 3°C\nB. 2°C\nC. 1°C\nD. 0.5°C",B,"《巴黎協定》的長期目標是將全球平均氣溫升幅控制在工業化前水平以上遠低於2°C之內，並努力將氣溫升幅限制在1.5°C之內。"
+"根據SBTi,若企業範疇三排放量超過多少比例則不得忽略?\nA. 20%\nB. 30%\nC. 40%\nD. 50%",C,"根據科學基礎減量目標倡議 (SBTi) 的標準，若企業的範疇三排放量佔總排放量（範疇1+2+3）的40%以上，則必須設定範疇三的減量目標。"
+"CBAM的主要目的是什麼?\nA. 增加出口補貼\nB. 解決碳洩漏問題\nC. 提高產品價格\nD. 降低能源效率",B,"歐盟的碳邊境調整機制 (CBAM) 旨在防止「碳洩漏」，也就是避免歐盟境內嚴格的氣候政策導致企業將生產轉移到碳排放限制較寬鬆的國家。"
+"「聯合國氣候變化框架公約的目標是什麼?\nA. 增加溫室氣體排放\nB. 減少臭氧層破壞\nC. 穩定大氣中溫室氣體濃度\nD. 促進經濟發展",C,"官方說明：聯合國氣候變化框架公約的最終目標是將大氣中溫室氣體的濃度穩定在防止氣候系統受到危險的人為干擾的水平上。"
+"已開發國家締約方應如何對待氣候變遷及其不利影響?\nA. 等待進一步的科學證據\nB. 積極應對\nC. 交由發展中國家處理\nD. 僅通過財務援助參與",B,"官方說明：公約要求已開發國家率先應對氣候變遷及其不利影響。"
+"發展中國家在公約中的特殊考慮是什麼?\nA. 不需要減少溫室氣體排放\nB. 面臨的具體需要和特殊情況應充分考慮\nC. 享有豁免權\nD. 獲得額外資金",B,"官方說明：公約承認發展中國家的特殊需求和情況，並應給予充分考慮。"
+"締約方應採取哪種類型的措施來對付氣候變遷?\nA. 僅政策上的改變\nB. 僅投資高科技解決方案\nC. 預防措施,包括緩解其不利影響\nD. 僅通過國際會議進行討論",C,"官方說明：締約方應採取預防性措施來預測、預防或盡量減少氣候變遷的原因，並減輕其不利影響。"
+"聯合國氣候變化框架公約中關於減緩或適應氣候變遷的項目應如何進行?\nA. 必須由政府單獨進行\nB. 應融入相關社會、經濟和環境政策及行動中\nC. 僅在國際壓力下進行\nD. 必須完全獨立於其他政策",B,"官方說明：相關政策和行動應與社會、經濟和環境目標相結合。"
+"台灣制定氣候變遷調適策略的願景是什麼?\nA. 增加溫室氣體排放\nB. 為建構能適應氣候風險之低碳家園\nC. 完全依賴再生能源\nD. 減少自然資源的使用",B,"官方說明：台灣的氣候變遷調適策略旨在建立一個能夠應對氣候風險的低碳社會。"
+"台灣設定的國家溫室氣體長期減量目標是什麼?\nA. 112年溫室氣體淨零排放\nB. 120年溫室氣體淨零排放\nC. 139年溫室氣體淨零排放\nD. 150年溫室氣體淨零排放",C,"官方說明：根據《氣候變遷因應法》，台灣的目標是在中華民國139年（西元2050年）實現溫室氣體淨零排放。"
+"台灣在因應氣候變遷的基本原則中,不包括以下哪項?\nA. 遵循「巴黎協定」\nB. 增強化資訊公開及公民參與\nC. 實施碳交易制度\nD. 新增核能發電",D,"官方說明：台灣的氣候變遷因應法中未將新增核能發電列為基本原則。"
+"台灣推動綠色金融及碳定價機制的目的是什麼?\nA. 加速溫室氣體減量\nB. 增加政府收入\nC. 限制民間資金運用\nD. 減少國際合作",A,"官方說明：推動綠色金融及碳定價是為了引導資金流向低碳和氣候適應型投資，從而加速減排。"
+"台灣政策配套中,不包括以下哪項?\nA. 推動綠色金融\nB. 檢討與改善再生能源等法令\nC. 發展氣候變遷科學及衝擊調適研究\nD. 全面禁止再生能源的發展",D,"官方說明：台灣的政策是積極發展再生能源，而非禁止。"
+"CDP 成立於哪一年?\nA. 1995年\nB. 2000年\nC. 2005年\nD. 2010年",B,"官方說明：CDP（前身為碳揭露計畫）成立於2000年。"
+"CDP 的數據集重點不包括哪一項?\nA. 氣候變化\nB. 森林砍伐\nC. 水安全\nD. 城市擴張",D,"官方說明：CDP主要關注氣候變遷、水安全和森林砍伐等環境議題，城市擴張並非其核心數據集重點。"
+"CDP 每年如何評估公司和城市?\nA. 通過客戶反饋\nB. 通過投資者投票\nC. 通過獨立評分方法\nD. 通過公開投標",C,"官方說明：CDP使用其獨立的評分方法來評估企業和城市的環境表現和資訊揭露程度。"
+"通過CDP 揭露環境數據可以帶來哪些商業利益?\nA. 增加產品銷量\nB. 提高公司聲譽\nC. 增加原材料消耗\nD. 減少員工數量",B,"官方說明：透過CDP揭露資訊有助於提高企業聲譽、管理風險並發現機會。"
+"CDP 原本的名稱是什麼?\nA. 碳排放計畫\nB. 碳揭露計畫\nC. 氣候變化計畫\nD. 環境保護計畫",B,"官方說明：CDP的原名是Carbon Disclosure Project（碳揭露計畫）。"
+"CDP 評分系統的目的是什麼?\nA. 提升公司股票價值\nB. 增加企業的市場份額\nC. 降低環境法律訴訟的風險\nD. 測量企業和城市的環境行動進展",D,"官方說明：CDP評分旨在激勵並衡量企業和城市在環境管理方面的進展。"
+"CDP 揭露對企業有哪些具體商業利益?\nA. 限制國際貿易\nB. 提高公司聲譽和競爭優勢\nC. 增加稅收負擔\nD. 降低員工滿意度",B,"官方說明：提高聲譽、增強競爭優勢、識別風險與機會是CDP揭露的主要商業利益。"
+"CDP 如何幫助企業領先於監管要求?\nA. 通過提前滿足多個地區的報告規則\nB. 通過減少政府監管\nC. 通過促進環境創新\nD. 通過提供法律咨詢",A,"官方說明：CDP的問卷整合了多個地區的監管要求，幫助企業提前準備和遵循。"
+"CDP的主要目的是什麼?\nA. 提供全球性的金融服務\nB. 推動全球森林砍伐\nC. 促進全球範圍內的貿易自由化\nD. 促進投資者、公司、城市、州和地區管理其環境影響",D,"官方說明：CDP旨在建立一個全球性的環境揭露系統，以幫助各方管理其環境影響。"
+"CDP 在擴展其環境影響評估領域時,新增加了哪些領域的關注?\nA. 僅限於氣候變化的影響\nB. 僅限於水資源管理\nC. 交通擁堵和城市規劃\nD. 生物多樣性和塑膠相關問題",D,"官方說明：CDP近年來已將其關注領域擴展到生物多樣性等更廣泛的自然相關議題。"
+"科學基礎減量目標倡議(SBTi)是由哪些組織共同發起的?\nA. 國際能源機構(IEA)、國際紅十字會、世界衛生組織\nB. 綠色和平組織、世界貿易組織、國際奧林匹克委員會\nC. CDP、世界資源研究所(WRI)、世界自然基金會(WWF)\nD. 聯合國全球盟約、國際紅十字會",C,"官方說明：SBTi是由CDP、聯合國全球盟約(UNGC)、世界資源研究所(WRI)和世界自然基金會(WWF)共同發起的。"
+"SBTi的主要目標是為了符合哪個國際協議的目標?\nA. 京都議定書\nB. 蒙特利爾議定書\nC. 巴黎協定\nD. 瑞士議定書",C,"官方說明：SBTi的目標是推動企業設定符合《巴黎協定》目標的減排路徑。"
+"SBTi 推動企業實現淨零排放的策略中,不包括以下哪項?\nA. 僅依賴碳抵換\nB. 通過設定近期目標來優先考慮快速且深度減排\nC. 設定長期目標\nD. 中和殘餘排放",A,"官方說明：SBTi強調企業應優先透過自身價值鏈的深度減排，而非僅依賴碳抵換。"
+"SBTi設定的減碳目標主要基於什麼標準?\nA. 企業自定的目標\nB. 政府規定的標準\nC. 科學研究和全球碳預算\nD. 行業平均水平",C,"官方說明：SBTi的減碳目標是基於最新的氣候科學研究和全球碳預算，以確保減排路徑與控制全球升溫的目標一致。"
+"SBTi 強調企業應該通過什麼方式達到淨零排放?\nA. 僅依靠碳交易\nB. 實質減排加上必要的碳抵換\nC. 僅依賴碳抵換\nD. 完全停止生產",B,"官方說明：SBTi的淨零標準要求企業深度減排，並使用碳移除來中和無法消除的殘餘排放。"
+"根據SBTi,企業設定的科學基礎減碳目標主要依據什麼?\nA. 全球碳預算\nB. 國家法律\nC. 個別企業意願\nD. 行業平均值",A,"官方說明：科學基礎減碳目標的設定是基於將全球升溫限制在特定水平所需的全球碳預算。"
+"SBTi 如何幫助企業在減碳過程中創新和整合氣候風險?\nA. 通過提供金融激勵\nB. 通過強制法律規定\nC. 通過設定科學基礎的減排目標和推動低碳技術創新\nD. 通過限制企業發展",C,"官方說明：設定科學基礎目標能為企業提供一個清晰的長期願景，從而推動低碳創新和氣候風險管理。"
+"企業在申請設定科學基礎減排目標的第一步應該採取什麼行動?\nA. 提交承諾信給SBTi\nB. 公開其碳排放量\nC. 與利害關係人溝通\nD. 直接開始減排",A,"官方說明：企業參與SBTi的第一步是簽署並提交一封承諾信。"
+"企業提交其 SBTi 減碳目標後,接下來的程序是什麼?\nA. 立即開始減排活動\nB. 等待官方驗證\nC. 停止所有碳排放活動\nD. 每月報告進度",B,"官方說明：企業提交目標後，SBTi的技術團隊會對目標進行驗證，以確保其符合標準。"
+"GRI 報告框架中,哪個準則提供了報告的基礎原則和報告過程?\nA. GRI 101:基礎\nB. GRI 102:一般揭露\nC. GRI 103:管理方法\nD. GRI 行業準則",A,"官方說明：GRI 101: 基礎，是理解和使用GRI準則的起點，闡述了報告原則。"
+"GRI 102:一般揭露涵蓋的範圍包括以下哪些方面?\nA. 氣候變化影響\nB. 組織概況和治理結構\nC. 特定行業的環境影響\nD. 員工福利管理",B,"官方說明：GRI 102: 一般揭露，要求組織提供其概況、策略、治理和利害關係人議合等背景資訊。"
+"以下哪個不是GRI 報告框架的一部分?\nA. GRI 通用準則\nB. GRI 行業準則\nC. GRI 主題準則\nD. GRI 財務準則",D,"官方說明：GRI準則框架由通用準則、行業準則和主題準則組成，不包含特定的「財務準則」。"
+"GRI 103:管理方法準則的主要目的是什麼?\nA. 評估組織財務績效\nB. 報告組織的治理結構\nC. 闡述如何管理特定經濟、環境和社會議題\nD. 描述組織的員工福利政策",C,"官方說明：GRI 103: 管理方法，要求組織說明其如何管理重大的經濟、環境和社會衝擊。"
+"在GRI 報告框架中,特定行業的GRI 行業準則的作用是什麼?\nA. 提供所有行業通用的報告原則\nB. 提供針對特定行業特有議題的詳細報告指南\nC. 僅適用於金融行業\nD. 替代GRI 通用準則",B,"官方說明：行業準則旨在幫助特定行業的組織報告其最可能產生的重大衝擊。"
+"特定主題內容的GRI 主題準則主要關注什麼?\nA. 組織內部治理結構\nB. 全球氣候變化\nC. 特定的經濟、環境或社會主題的詳細報告要求\nD. 財務報告準則",C,"官方說明：主題準則包含針對特定主題（如廢棄物、職業健康安全）的揭露要求。"
+"2021年GRI 更新的通用準則主要增強了哪方面的報告要求?\nA. 財務績效\nB. 產品創新\nC. 盡職調查和人權\nD. 市場營銷策略",C,"官方說明：2021年更新的GRI通用準則加強了與人權和環境盡職調查相關的揭露要求。"
+"GRI 報告原則中,哪一項是關於報告品質的關鍵原則?\nA. 準確性\nB. 定時性\nC. 可比性\nD. 經濟指標",A,"官方說明：準確性、平衡性、清晰性、可比性、可靠性和及時性是GRI報告的品質原則。"
+"根據GRI準則,組織進行永續發展報告的首要目的是什麼?\nA. 增加市場份額\nB. 提高品牌形象\nC. 透明地報告其經濟、環境和社會影響\nD. 遵守政府法規",C,"官方說明：GRI的核心是幫助組織對其產生的經濟、環境和社會衝擊負責，並進行透明的溝通。"
+"在GRI 102:一般揭露中,組織需要提供哪些類型的資訊?\nA. 僅財務資訊\nB. 僅環境影響資訊\nC. 組織概況、治理結構和策略等背景資訊\nD. 僅社會責任活動",C,"官方說明：GRI 102要求揭露組織的背景資訊，以幫助讀者理解其報告內容。"
+"TCFD的四大核心要素不包括以下哪一項?\nA. 策略\nB. 治理\nC. 資產管理\nD. 風險管理",C,"官方說明：TCFD的四大核心要素是治理（Governance）、策略（Strategy）、風險管理（Risk Management）以及指標和目標（Metrics and Targets）。"
+"下列哪項是 TCFD 的主要目標之一?\nA. 強制企業削減所有碳排放\nB. 增加氣候相關資訊的透明度\nC. 減少氣候災害的發生\nD. 統一全球氣候政策",B,"官方說明：TCFD旨在推動更有效、更一致的氣候相關財務資訊揭露。"
+"哪個國際機構於2015年成立了TCFD 工作小組?\nA. 聯合國環境規劃署(UNEP)\nB. 世界銀行(World Bank)\nC. 國際貨幣基金組織(IMF)\nD. 金融穩定委員會(FSB)",D,"官方說明：金融穩定委員會（Financial Stability Board, FSB）於2015年成立了氣候相關財務揭露工作小組（TCFD）。"
+"根據TCFD的建議,企業在揭露氣候相關風險與機會時,應考慮哪些類型的風險?\nA. 實體風險和轉型風險\nB. 信用風險和市場風險\nC. 操作風險和法律風險\nD. 流動性風險和聲譽風險",A,"官方說明：TCFD將氣候相關風險分為兩大類：轉型風險（Transition Risks）和實體風險（Physical Risks）。"
+"TCFD 建議企業應在其策略中考量以下哪個時間範圍的氣候相關風險與機會?\nA. 僅短期\nB. 僅中期\nC. 僅長期\nD. 短期、中期和長期",D,"官方說明：企業應考慮不同時間範圍（短期、中期、長期）下的氣候相關風險與機會。"
+"TCFD的「治理」要素主要關注什麼?\nA. 釐清負責氣候風險管理的最高對象、及其角色與責任\nB. 分析氣候變遷對企業財務報表的影響\nC. 制定具體的減排目標和時間表\nD. 實施員工氣候變遷培訓計劃",A,"官方說明：「治理」要素關注董事會對氣候相關風險與機會的監督，以及管理層在評估和管理中的角色。"
+"TCFD的「策略」要素要求企業說明什麼?\nA. 氣候相關風險與機會對企業的業務、策略、財務規劃的實際與潛在衝擊\nB. 如何監控和報告其溫室氣體排放量\nC. 其供應鏈中氣候風險管理的流程\nD. 與政府部門溝通氣候政策的策略",A,"官方說明：「策略」要素要求企業揭露其所識別的氣候相關風險與機會對業務、策略和財務規劃的影響。"
+"TCFD的「風險管理」要素涉及哪些方面?\nA. 企業如何鑑別、評估及管理氣候相關風險\nB. 設定量化的減排目標和時間表\nC. 開發新的低碳產品和服務\nD. 公開其氣候相關財務資訊",A,"官方說明：「風險管理」要素要求企業揭露其識別、評估和管理氣候相關風險的流程。"
+"TCFD的「指標與目標」要素要求企業做什麼?\nA. 訂定企業評估和管理與氣候相關風險與機會的指標和目標\nB. 說明其環境保護政策和措施\nC. 詳細描述其業務運營模式和價值鏈\nD. 預測未來市場趨勢和競爭格局",A,"官方說明：「指標與目標」要素要求企業揭露其用於評估和管理相關氣候風險與機會的指標和目標。"
+"歐盟碳排放交易體系(EU ETS)自何年開始實施?\nA. 2000年\nB. 2005年\nC. 2010年\nD. 2015年",B,"官方說明：歐盟排放交易體系（EU ETS）是全球第一個也是最大的碳市場，於2005年啟動。"
+"歐盟計劃從哪一年開始逐漸取消 ETS 的免費排放配額?\nA. 2020年\nB. 2026年\nC. 2034年\nD. 2023年",B,"官方說明：隨著CBAM的引入，歐盟計劃從2026年開始逐步取消對CBAM所涵蓋行業的免費配額，至2034年完全取消。"
+"CBAM 規定,過渡期後進口商必須在每年的哪一天前繳交足夠的CBAM 憑證?\nA. 3月31日\nB. 12月31日\nC. 5月31日\nD. 1月1日",C,"官方說明：每年5月31日前，進口商必須提交前一年的CBAM申報，並繳交相應數量的CBAM憑證。"
+"CBAM 憑證的價格是根據什麼來確定?\nA. 歐盟委員會的固定價格\nB. 國際碳價\nC. 歐盟 ETS 排放額度拍賣的平均價格\nD. 每年的歐盟預算",C,"官方說明：CBAM憑證的價格將與歐盟ETS排放配額的每週平均拍賣價格掛鉤。"
+"CBAM 過渡期間是從哪一年開始到哪一年結束?\nA. 2020年至2023年\nB. 2023年至2025年\nC. 2026年至2030年\nD. 2021年至2024年",B,"官方說明：CBAM的過渡期從2023年10月1日開始，至2025年12月31日結束。"
+"根據歐盟 CBAM,進口商必須申報其貨品內的產品碳含量的基礎是什麼?\nA. 僅直接排放\nB. 僅間接排放\nC. 直接排放與間接排放\nD. 生產效率",C,"官方說明：CBAM初期主要針對直接排放，但未來將逐步擴大到間接排放。"
+"若進口產品的實際排放量無法被充分確定,CBAM 的排放量計算應使用什麼?\nA. 實際排放量\nB. 預設值\nC. 最高排放量\nD. 最低排放量",B,"官方說明：在無法確定實際排放數據的情況下，將使用歐盟提供的預設值進行計算。"
+"歐盟 CBAM 對於哪些產品實施了特定的排放強度計算方法?\nA. 電力\nB. 簡單商品與複雜商品\nC. 僅限於鋼鐵和水泥\nD. 所有進口產品",B,"官方說明：CBAM對簡單商品（製程中無碳排原料投入）和複雜商品（製程中有碳排原料投入）有不同的計算規則。"
+"CBAM 報告中,報告申報者需提供的資訊不包括下列哪項?\nA. 進口產品的數量\nB. 生產設施之資訊\nC. 產品的直接含碳量\nD. 進口商的財務報表",D,"官方說明：CBAM報告要求提供產品數量、含碳量、原產國已付碳價等資訊，不涉及進口商的完整財務報表。"
+"在臺灣的淨零排放策略中,再生能源扮演什麼角色?\nA. 次要重要性\nB. 無角色\nC. 主要重要性\nD. 將被淘汰",C,"官方說明：再生能源是台灣2050淨零轉型路徑中的關鍵電力來源。"
+"至2025年,關於再生能源安裝的具體目標是什麼?\nA. 5GW 的核能\nB. 20GW 的太陽能\nC. 10GW 的煤炭能力\nD. 15GW的天然氣",B,"官方說明：台灣的能源轉型政策設定了2025年太陽光電累計安裝量達到20GW的目標。"
+"臺灣計劃如何解決交通部門的排放問題?\nA. 增加私人車輛使用\nB. 逐步淘汰電動車\nC. 擴大綠色公共交通\nD. 減少道路建設",C,"官方說明：推動運具電動化和發展綠色公共運輸是台灣交通部門減排的關鍵策略。"
+"臺灣在 2050 淨零排放路徑中,氫能主要應用於哪個方面?\nA. 工業製程、發電及運輸\nB. 家庭照明和電器\nC. 小型農業機械\nD. 個人電子產品",A,"官方說明：氫能被視為在工業、發電和大型運輸工具等難以電氣化部門的關鍵脫碳選項。"
+"在臺灣的淨零排放策略中,「自然碳匯」主要指什麼?\nA. 藉由造林及相關經營工作降低大氣二氧化碳濃度\nB. 開發新的碳捕捉技術\nC. 工業生產過程中的碳回收\nD. 進口國外的碳信用額度",A,"官方說明：自然碳匯（Natural Carbon Sinks）是指利用森林、土壤、海洋等自然生態系統來吸收和儲存二氧化碳。"
+"臺灣推動「淨零綠生活」的主要目的是什麼?\nA. 透過全民生活轉型邁向2050淨零排放\nB. 鼓勵大量消費以刺激經濟\nC. 限制民眾的日常活動\nD. 發展觀光旅遊產業",A,"官方說明：「淨零綠生活」旨在透過食、衣、住、行、育、樂、購等各方面的行為改變，促進全民參與淨零轉型。"
+"臺灣在淨零排放策略中,「綠色金融」的主要作用是什麼?\nA. 運用金融市場力量,引導經濟邁向淨零排放\nB. 增加銀行業的利潤\nC. 限制企業的融資管道\nD. 鼓勵投資高風險產業",A,"官方說明：「綠色金融」是利用金融工具和市場機制，引導資金投入綠色及永續發展領域。"
+"臺灣淨零排放策略中的「公正轉型」強調的目標是什麼?\nA. 以「盡力不遺落任何人」為目標\nB. 優先發展高科技產業\nC. 限制傳統產業的發展\nD. 強制所有企業立即進行轉型",A,"官方說明：「公正轉型」旨在確保淨零轉型的過程中，能兼顧社會公平，對可能受衝擊的群體提供支持，不遺落任何人。"
+"總量管制排放交易主要目的是什麼?\nA. 增加企業稅收\nB. 減少溫室氣體排放\nC. 促進國際貿易\nD. 增加政府監管",B,"官方說明：總量管制與交易（Cap and Trade）是透過設定排放總量上限，並允許排放單位交易配額，以符合經濟效益的方式達成減排目標。"
+"碳信用額度需要在哪裡註冊以確保其獨一無二?\nA. 國際貿易組織\nB. 專門的登錄處\nC. 國家環保機構\nD. 私人交易平台",B,"官方說明：碳權或碳信用額度需要在公開的登錄系統（Registry）中進行註冊、追蹤和註銷，以確保其唯一性並避免重複計算。"
+"台灣碳權交易所的特色不包括下列哪項?\nA. 接軌國際,採美元(USD)計價之交易平台\nB. 強制所有企業參與交易\nC. 保障買賣雙方交易安全,採「信託帳戶」進行交易\nD. 妥善管理帳戶平台,採「子帳戶」架構設計",B,"官方說明：台灣碳權交易所的交易是基於自願性質，並非強制所有企業參與。"
+"碳交所上架之國外減量額度,其減量效益發生年度距申請上架年度不得超過幾年?\nA. 3年\nB. 5年\nC. 7年\nD. 10年",B,"官方說明：根據台灣碳權交易所的規定，申請上架的國外碳權，其減量效益發生年度不得超過5年。"
+"ISO 14068-1 首次發布的年份是?\nA. 2010年\nB. 2014年\nC. 2020年\nD. 2023年",D,"官方說明：ISO 14068-1:2023 於2023年11月正式發布。"
+"ISO 14068-1 的核心目的是什麼?\nA. 提供國家碳報告的統一格式\nB. 透過量化、減排和碳抵換實現碳中和\nC. 將所有碳足跡數據轉化為經濟指標\nD. 減少國際間碳排放報告的數據衝突",B,"官方說明：ISO 14068-1旨在提供一個實現和宣告碳中和的框架與原則。"
+"ISO 14068-1 強調碳中和應優先考慮哪一項?\nA. 直接與間接溫室氣體減排和移除\nB. 增加碳抵換的使用比例\nC. 將重點放在範疇3排放上\nD. 優先推動碳交易市場的發展",A,"官方說明：該標準強調減排的優先級，應先致力於價值鏈內的溫室氣體減排與移除增量，然後才使用碳權抵換殘餘排放。"
+"ISO 14068-1 如何確保碳中和的實踐具備可信度?\nA. 強制所有企業使用 ISO 14064-1 進行盤查\nB. 透過第三方查證和透明溝通\nC. 將碳抵換作為主要實現手段\nD. 簡化減排路徑的規劃",B,"官方說明：該標準要求透明的溝通、可信的數據以及第三方查證，以確保碳中和宣告的可信度。"
+"ISO 14068-1的適用範圍中,下列哪一項不包括?\nA. 金融機構\nB. 地方政府\nC. 商品或服務\nD. 領土(如國家或城市)",D,"官方說明：ISO 14068-1適用於組織、產品和服務，但不適用於國家或城市等領土層級的碳中和宣告。"
+"根據 ISO 14068-1,溫室氣體盤查的數據來源可以基於以下哪一項標準?\nA. ISO 14064-1 和 ISO 14067\nB. ISO 14001 和 ISO 50001\nC. GHG Protocol 和 ISO 9001\nD. PAS 2060 和 ISO 14064-2",A,"官方說明：該標準接受基於ISO 14064-1（組織層級）或ISO 14067（產品層級）的溫室氣體盤查數據。"
+"溫室氣體盤查報告原則“不”包括以下哪項?\nA. 準確性\nB. 一致性\nC. 極大化\nD. 完整性",C,"官方說明：溫室氣體盤查的五大原則是相關性、完整性、一致性、準確性及透明度，不包含極大化。"
+"溫室氣體盤查報告原則中,何者是為了使溫室氣體相關資訊能有意義比較,以及容許有意義的跨年度或同產業排放比較?\nA. 準確性\nB. 一致性\nC. 完整性\nD. 透明度",B,"官方說明：一致性原則確保了使用相同的方法學和數據來源，使得排放數據具有可比較性。"
+"依據標準組織型溫室氣體盤查須納入所有相關的溫室氣體排放與移除。其遵循的盤查原則是?\nA. 準確性\nB. 完整性\nC. 一致性\nD. 相關性",B,"官方說明：完整性原則要求組織應納入其所選邊界內的所有相關排放源和溫室氣體種類。"
+"企業進行溫室氣體盤查的第一步是什麼?\nA. 設定邊界鑑別排放源\nB. 收集活動數據與計算排放量\nC. 指派溫室氣體盤查小組\nD. 文件化紀錄",C,"官方說明：成立一個跨部門的盤查推動小組，並獲得高階主管的支持，是盤查工作的起點。"
+"在進行溫室氣體盤查時,如何確保報告的完整性?\nA. 報告主要排放源\nB. 僅關注直接排放\nC. 包括所有相關的直接和間接排放源\nD. 忽略間接排放源",C,"官方說明：完整性原則要求涵蓋組織邊界內所有相關的排放源，包括直接和主要的間接排放。"
+"組織如何確保其溫室氣體盤查的一致性,以便於時間上的比較?\nA. 每年更換計算方法\nB. 維持使用相同的數據來源和計算方法\nC. 僅報告最大的排放源\nD. 忽略小規模排放源",B,"官方說明：為確保數據的可比較性，應持續使用一致的盤查邊界、數據收集方法和計算方式。"
+"組織在溫室氣體報告中如何體現透明度原則?\nA. 僅報告對組織有利的資訊\nB. 隱藏計算方法\nC. 充分且適當地揭露溫室氣體相關資訊\nD. 避免公開不確定性數據",C,"官方說明：透明度原則要求清楚、誠實地揭露所有相關資訊、假設和計算方法，以便使用者能做出有根據的判斷。"
+"選擇溫室氣體報告中數據和方法的過程中,應依據什麼原則來確保其相關性?\nA. 報告所有可能的數據\nB. 基於預期使用者的需求選擇相關的溫室氣體源和匯\nC. 僅報告國際間公認的溫室氣體\nD. 避免使用地方性的溫室氣體數據",B,"官方說明：相關性原則指報告應包含能滿足內外部使用者需求的資訊，幫助他們做出決策。"
+"溫室氣體報告的一般原則旨在確保什麼?\nA. 報告僅包含正面影響\nB. 資訊經過真實公正的考量\nC. 報告僅限於公開資料\nD. 忽略小規模排放源的影響",B,"官方說明：盤查五大原則旨在確保報告是真實、公正、準確且有用的資訊呈現。"
+"下列何項標準規定組織層級對溫室氣體(GHG)排放與移除之量化報告之原則與要求事項?\nA. ISO 14064-1\nB. ISO 14064-2\nC. ISO 14067\nD. ISO 14064-3",A,"官方說明：ISO 14064-1是針對「組織」層級的溫室氣體盤查與報告的標準。"
+"下列哪種盤查方法是指依據受查驗者是否對排放源具有財務上的控制權?\nA. 財務控制法\nB. 營運控制法\nC. 股權持分法\nD. 無相關定義",A,"官方說明：財務控制法是指組織有能力指導一實體之財務與營運政策，以期從其活動中獲取經濟效益。"
+"下列哪種排放類別不屬於我國現階段溫室氣體盤查涵蓋範疇?\nA. 類別 1 直接溫室氣體排放\nB. 類別 2來自輸入能源之間接溫室氣體排放量\nC. 類別3來自運輸之間接溫室氣體排放量\nD. 皆屬於盤查範疇",C,"官方說明：我國環保署的盤查登錄管理辦法中，目前強制盤查的範疇為範疇一（直接排放）與範疇二（能源間接排放）。範疇三（其他間接排放）為自願盤查。"
+"A 公司購買電力作為廠房生產使用,請問這是屬於何種類別排放?\nA. 類別 1 直接溫室氣體排放\nB. 類別 2來自輸入能源之間接溫室氣體排放量\nC. 類別 3 來自運輸之間接溫室氣體排放量\nD. 類別 4 來自組織使用的產品之間接溫室氣體排放量",B,"官方說明：外購電力屬於範疇二（類別二）的能源間接排放。"
+"請問B公司引進隔壁廠商燃燒天然氣鍋爐產生的蒸氣作為製程使用,請問這是屬於何種類別排放?\nA. 類別1 直接溫室氣體排放\nB. 類別2 來自輸入能源之間接溫室氣體排放量\nC. 類別3 來自運輸之間接室氣體排放量\nD. 類別 4 來自組織使用的產品之間接溫室氣體排放量",B,"官方說明：外購的蒸氣、熱或冷能等，屬於範疇二（類別二）的能源間接排放。"
+"C公司在溫室氣體盤查報告書提到盤查的範圍包含桃園廠與小港廠。依據 ISO 14064-1:2018最新條文規範,請問這段描述內容描述的是界定何種邊界?\nA. 組織邊界\nB. 營運邊界\nC. 報告邊界\nD. 系統邊界",C,"官方說明：報告邊界（Reporting Boundary）明確說明了此次盤查報告所涵蓋的具體營運單位或設施。"
+"ISO 14064-1:2018 界定全球暖化潛勢(GWP)的溫室氣體(GHG)中,下列何者為非?\nA. 二氧化碳\nB. 氦氣\nC. 氧化亞氮\nD. 六氟化硫",B,"官方說明：氦氣（He）是惰性氣體，不是溫室氣體。"
+"在溫室氣體盤查中,組織邊界的設定可能根據什麼來進行?\nA. 僅考慮直接排放源\nB. 僅考慮能源間接排放源\nC. 僅考慮法規要求\nD. 財務控制權、營運控制權或股權持分法",D,"官方說明：組織可以根據其對不同營運單位的控制權或持股比例來設定盤查的組織邊界。"
+"產品碳足盤查過程中,針對特定的產品/服務進行環境宣告之生命週期範疇界定的作業程序文件。目的在使相同功能產品/服務就其環境衝擊量化後之環境宣告,具有一致的比較基礎。這份文件稱之為何?\nA. 生命週期評估(LCA)\nB. 物質安全資料表(MSDS)\nC. 產品類別規則(PCR)\nD. 物質流成本分析(MFCA)",C,"官方說明：產品類別規則（Product Category Rules, PCR）為特定產品類別提供了一致的LCA計算規則和指引。"
+"計算產品碳足跡時,須事先找尋符合的產品類別規則嗎?\nA. 需要\nB. 不需要\nC. 隨心情而定\nD. 以上皆可",A,"官方說明：為了確保碳足跡計算的一致性和可比較性，應優先尋找並遵循對應的PCR。"
+"在產品類別規則(PCR)中,「功能單位」的目的是什麼?\nA. 確定產品的最低銷售價格\nB. 為產品系統量化績效提供參照單位\nC. 計算產品的生產成本\nD. 確定產品的市場定位",B,"官方說明：功能單位（Functional Unit）是量化產品系統功能績效的參考基準，例如「提供1000小時的照明」。"
+"PCR 文檔中提到的「系統邊界」是指什麼?\nA. 產品的銷售範圍\nB. 產品製造過程中使用的技術類型\nC. 決定哪些階段的範疇納入碳足跡計算\nD. 產品的利潤邊界",C,"官方說明：系統邊界定義了在生命週期評估中需要納入考量的所有單元過程和階段。"
+"PCR 中提及的「切斷規則」主要用於什麼目的?\nA. 確定產品的銷售策略\nB. 忽略碳足跡計算中的重要階段\nC. 允許忽略對總排放貢獻微小的過程\nD. 增加碳足跡計算的準確性",C,"官方說明：切斷規則（Cut-off criteria）允許在對結果影響甚微的情況下，忽略某些微小的輸入或輸出，以簡化盤查過程。"
+"在PCR中,「分配規則」是指?\nA. 決定產品價格的機制\nB. 根據物理性質分配投入和產出的方法\nC. 選擇產品的銷售地區\nD. 計算產品利潤的規則",B,"官方說明：分配（Allocation）是在多功能過程中，將投入和產出的環境負荷分配到不同產品或副產品的程序。"
+"根據環境部的產品類別規則,對於生命週期各階段數據蒐集的要求,以下哪一項描述是正確的?\nA. 原料取得階段必須收集所有二級活動數據\nB. 生產製造階段僅需使用估算數據\nC. 優先採用一級活動數據,但不強制要求收集\nD. 銷售階段的數據可以完全忽略",C,"官方說明：PCR通常會鼓勵或要求優先使用一級數據（直接測量或來自供應商的數據），在無法取得時才使用二級數據（來自資料庫）。"
+"在產品類別規則(PCR)文檔中,對於名詞定義的描述主要目的是什麼?\nA. 提供特定產品類別的專業術語解釋\nB. 詳述產品的市場定位和銷售策略\nC. 計算產品的生產成本和價格\nD. 確定產品的銷售地區和目標客戶",A,"官方說明：名詞定義確保了所有使用者對PCR中的術語有共同的理解。"
+"衝擊評估階段屬於生命週期評估作業LCA 的第幾階段?\nA. 第一階段\nB. 第二階段\nC. 第三階段\nD. 第四階段",C,"官方說明：LCA的四個階段依序是：1.目標與範疇界定、2.盤查分析(LCI)、3.衝擊評估(LCIA)、4.闡釋。"
+"盤查分析階段屬於生命週期評估作業LCA 的第幾階段?\nA. 第一階段\nB. 第二階段\nC. 第三階段\nD. 第四階段",B,"官方說明：LCA的四個階段依序是：1.目標與範疇界定、2.盤查分析(LCI)、3.衝擊評估(LCIA)、4.闡釋。"
+"在LCA的衝擊評估階段,溫室氣體排放與移除量應選擇何種 GWP 值計算?\nA. GWP-10年\nB. GWP-100年\nC. GWP-200年\nD. GWP-500年",B,"官方說明：國際上普遍採用100年為時間尺度的全球暖化潛勢值（GWP100）進行計算。"
+"使用生命週期評估進行產品碳足跡評估不會經歷哪個重要階段?\nA. 盤查分析\nB. 目標範疇定義\nC. 闡釋\nD. 實驗",D,"官方說明：LCA的四個主要階段不包含「實驗」。"
+"功能單位是在哪個生命週期階段被定義?\nA. 盤查分析\nB. 目標範疇定義\nC. 生命週期衝擊評估\nD. 闡釋",B,"官方說明：功能單位是在第一階段「目標與範疇界定」時就必須明確定義的。"
+"生命週期評估(LCA)的目的是什麼?\nA. 僅評估產品的經濟效益\nB. 評估產品或服務從原物料取得到最終處置的環境影響\nC. 評估員工的工作效率\nD. 計算產品的市場價值",B,"官方說明：LCA是一個系統性評估產品或服務在其整個生命週期中對環境潛在衝擊的工具。"
+"在生命週期評估中,目標與範疇界定的重要性是什麼?\nA. 決定產品的價格\nB. 界定評估的範圍和目的,確保評估結果的有效應用\nC. 選擇適合的廣告平台\nD. 計算生產成本",B,"官方說明：此階段是LCA的基礎，明確定義了研究的目的、範圍、功能單位、系統邊界等，決定了整個評估的方向和深度。"
+        `;
+
+        // --- DOM ELEMENTS ---
+        const views = {
+            start: document.getElementById('start-screen'),
+            quiz: document.getElementById('quiz-screen'),
+            result: document.getElementById('result-screen'),
+            bank: document.getElementById('bank-screen'),
+        };
+        const startQuizBtn = document.getElementById('start-quiz-btn');
+        const reviewIncorrectBtn = document.getElementById('review-incorrect-btn');
+        const viewBankBtn = document.getElementById('view-bank-btn');
+        const reviewCountText = document.getElementById('review-count-text');
+        const bankCountText = document.getElementById('bank-count-text');
+        const quizTitle = document.getElementById('quiz-title');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackExplanation = document.getElementById('feedback-explanation');
+        const nextBtn = document.getElementById('next-btn');
+        const quitQuizBtn = document.getElementById('quit-quiz-btn');
+        const scoreText = document.getElementById('score-text');
+        const incorrectCountText = document.getElementById('incorrect-count-text');
+        const restartBtn = document.getElementById('restart-btn');
+        const reviewSessionIncorrectBtn = document.getElementById('review-session-incorrect-btn');
+        const backToMenuBtnResult = document.getElementById('back-to-menu-btn-result');
+        const bankContent = document.getElementById('bank-content');
+        const backToMenuBtnBank = document.getElementById('back-to-menu-btn-bank');
+
+        // --- STATE ---
+        let allQuestions = [];
+        let currentQuizQuestions = [];
+        let sessionIncorrectQuestions = [];
+        let persistentIncorrectQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // --- FUNCTIONS ---
+
+        /**
+         * Shows a specific view and hides others.
+         * @param {string} viewName - The name of the view to show ('start', 'quiz', 'result', 'bank').
+         */
+        function showView(viewName) {
+            Object.values(views).forEach(view => view.classList.add('hidden'));
+            if (views[viewName]) {
+                views[viewName].classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Parses the raw data string into an array of question objects.
+         * @param {string} data The raw string containing all question data.
+         * @returns {Array<Object>} An array of question objects with unique IDs.
+         */
+        function parseQuestions(data) {
+            const records = data.trim().split(/\n(?=")/);
+            const parsedQuestions = [];
+            const seenQuestions = new Set();
+
+            records.forEach((record, index) => {
+                try {
+                    const parts = [];
+                    let currentPart = '';
+                    let inQuotes = false;
+                    for (let i = 0; i < record.length; i++) {
+                        const char = record[i];
+                        if (char === '"' && (i === 0 || record[i-1] !== '\\')) {
+                            inQuotes = !inQuotes;
+                        } else if (char === ',' && !inQuotes) {
+                            parts.push(currentPart.trim());
+                            currentPart = '';
+                        } else {
+                            currentPart += char;
+                        }
+                    }
+                    parts.push(currentPart.trim());
+
+                    if (parts.length < 2) return;
+
+                    const questionWithOptions = parts[0].replace(/^"|"$/g, '').trim();
+                    const answerLetter = parts[1].replace(/^"|"$/g, '').trim();
+                    const explanation = (parts[2] || '"暫無說明"').replace(/^"|"$/g, '').trim();
+                    const questionLines = questionWithOptions.split('\n');
+                    const question = questionLines[0].replace(/^[0-9]+[.)]\s*/, '').trim();
+                    
+                    if (seenQuestions.has(question)) return;
+                    seenQuestions.add(question);
+
+                    const options = questionLines.slice(1).map(opt => opt.replace(/^[A-D][).]\s*|^\([A-D]\)\s*/, '').trim());
+
+                    if (question && options.length === 4 && answerLetter) {
+                        const answerIndex = 'ABCD'.indexOf(answerLetter.trim().toUpperCase());
+                        if (answerIndex !== -1) {
+                            parsedQuestions.push({
+                                id: index, question, options, answer: answerIndex, explanation
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.error("Failed to parse record:", record, e);
+                }
+            });
+            return parsedQuestions;
+        }
+
+        /**
+         * Shuffles an array in place using the Fisher-Yates algorithm.
+         * @param {Array} array The array to shuffle.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        /**
+         * Starts a quiz session.
+         * @param {string} mode - 'normal', 'review_all', or 'review_session'.
+         */
+        function startQuiz(mode = 'normal') {
+            score = 0;
+            currentQuestionIndex = 0;
+            sessionIncorrectQuestions = [];
+
+            switch(mode) {
+                case 'review_all':
+                    quizTitle.textContent = '錯題複習';
+                    currentQuizQuestions = [...persistentIncorrectQuestions];
+                    if (currentQuizQuestions.length === 0) {
+                        alert("太棒了！沒有需要複習的錯題。");
+                        return;
+                    }
+                    break;
+                case 'review_session':
+                    quizTitle.textContent = '本次錯題複習';
+                    currentQuizQuestions = [...sessionIncorrectQuestions];
+                     if (currentQuizQuestions.length === 0) {
+                        alert("太棒了！本次測驗全對，沒有錯題可以複習。");
+                        return;
+                    }
+                    break;
+                case 'normal':
+                default:
+                    quizTitle.textContent = '測驗練習';
+                    shuffleArray(allQuestions);
+                    currentQuizQuestions = allQuestions.slice(0, QUIZ_LENGTH);
+                    break;
+            }
+            
+            showView('quiz');
+            displayQuestion();
+        }
+
+        /**
+         * Displays the current question and options.
+         */
+        function displayQuestion() {
+            optionsContainer.innerHTML = '';
+            feedbackArea.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            optionsContainer.classList.remove('disabled');
+
+            const question = currentQuizQuestions[currentQuestionIndex];
+            if (!question) {
+                showResults();
+                return;
+            }
+
+            const progressPercentage = ((currentQuestionIndex) / currentQuizQuestions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `題目 ${currentQuestionIndex + 1} / ${currentQuizQuestions.length}`;
+            questionText.textContent = question.question;
+
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.innerHTML = `<span class="font-bold mr-2">${'ABCD'[index]}.</span> ${option}`;
+                button.classList.add('option-btn', 'w-full', 'p-4', 'border-2', 'rounded-lg', 'text-left', 'hover:bg-gray-100', 'dark:hover:bg-gray-700', 'dark:border-gray-600');
+                button.dataset.index = index;
+                button.addEventListener('click', handleOptionSelect);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        /**
+         * Handles the user selecting an option.
+         * @param {Event} e The click event.
+         */
+        function handleOptionSelect(e) {
+            const selectedButton = e.currentTarget;
+            const selectedIndex = parseInt(selectedButton.dataset.index);
+            const question = currentQuizQuestions[currentQuestionIndex];
+            const correctIndex = question.answer;
+
+            optionsContainer.classList.add('disabled');
+
+            if (selectedIndex === correctIndex) {
+                score++;
+                selectedButton.classList.add('correct');
+                feedbackTitle.textContent = '✅ 正確！';
+                feedbackTitle.className = 'font-bold text-lg mb-2 text-green-600 dark:text-green-400';
+                // If a question from the review list is answered correctly, remove it.
+                persistentIncorrectQuestions = persistentIncorrectQuestions.filter(q => q.id !== question.id);
+            } else {
+                selectedButton.classList.add('incorrect');
+                const correctButton = optionsContainer.querySelector(`[data-index='${correctIndex}']`);
+                if(correctButton) correctButton.classList.add('correct');
+                feedbackTitle.textContent = '❌ 答錯了';
+                feedbackTitle.className = 'font-bold text-lg mb-2 text-red-600 dark:text-red-400';
+                sessionIncorrectQuestions.push(question);
+            }
+
+            feedbackExplanation.textContent = question.explanation;
+            feedbackArea.classList.remove('hidden');
+
+            if (currentQuestionIndex < currentQuizQuestions.length - 1) {
+                nextBtn.textContent = '下一題';
+            } else {
+                nextBtn.textContent = '查看結果';
+            }
+            nextBtn.classList.remove('hidden');
+        }
+
+        /**
+         * Moves to the next question or shows the results.
+         */
+        function handleNext() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuizQuestions.length) {
+                displayQuestion();
+            } else {
+                mergeAndSaveIncorrectQuestions();
+                showResults();
+            }
+        }
+
+        /**
+         * Merges session incorrect questions into the persistent list and saves to localStorage.
+         */
+        function mergeAndSaveIncorrectQuestions() {
+            sessionIncorrectQuestions.forEach(q => {
+                if (!persistentIncorrectQuestions.some(piq => piq.id === q.id)) {
+                    persistentIncorrectQuestions.push(q);
+                }
+            });
+            localStorage.setItem('incorrectQuestions', JSON.stringify(persistentIncorrectQuestions));
+        }
+
+        /**
+         * Displays the final score and results screen.
+         */
+        function showResults() {
+            scoreText.textContent = `${score} / ${currentQuizQuestions.length}`;
+            incorrectCountText.textContent = `${sessionIncorrectQuestions.length} 題答錯`;
+            reviewSessionIncorrectBtn.style.display = sessionIncorrectQuestions.length > 0 ? 'block' : 'none';
+            showView('result');
+        }
+
+        /**
+         * Renders the entire question bank for viewing.
+         */
+        function showQuestionBank() {
+            bankContent.innerHTML = allQuestions.map((q, index) => `
+                <div class="bank-item">
+                    <p class="font-bold mb-2">${index + 1}. ${q.question}</p>
+                    <div class="pl-4 space-y-1 text-sm">
+                        ${q.options.map((opt, i) => `<p class="${i === q.answer ? 'text-green-600 dark:text-green-400 font-semibold' : ''}">${'ABCD'[i]}. ${opt}</p>`).join('')}
+                    </div>
+                    <p class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 text-xs text-gray-500 dark:text-gray-400"><b>解析：</b>${q.explanation}</p>
+                </div>
+            `).join('');
+            showView('bank');
+        }
+
+        /**
+         * Updates the UI elements on the start screen.
+         */
+        function updateStartScreen() {
+            reviewCountText.textContent = `您目前有 ${persistentIncorrectQuestions.length} 題錯題`;
+            reviewIncorrectBtn.disabled = persistentIncorrectQuestions.length === 0;
+            bankCountText.textContent = `共 ${allQuestions.length} 題`;
+        }
+
+        /**
+         * Sets up all event listeners for the app.
+         */
+        function setupEventListeners() {
+            startQuizBtn.addEventListener('click', () => startQuiz('normal'));
+            reviewIncorrectBtn.addEventListener('click', () => startQuiz('review_all'));
+            viewBankBtn.addEventListener('click', showQuestionBank);
+            
+            nextBtn.addEventListener('click', handleNext);
+            quitQuizBtn.addEventListener('click', () => {
+                if (confirm('您確定要結束本次測驗嗎？進度將不會被儲存。')) {
+                    showView('start');
+                    updateStartScreen();
+                }
+            });
+
+            restartBtn.addEventListener('click', () => startQuiz('normal'));
+            reviewSessionIncorrectBtn.addEventListener('click', () => startQuiz('review_session'));
+            backToMenuBtnResult.addEventListener('click', () => {
+                showView('start');
+                updateStartScreen();
+            });
+
+            backToMenuBtnBank.addEventListener('click', () => showView('start'));
+        }
+
+        /**
+         * Initializes the application.
+         */
+        function init() {
+            allQuestions = parseQuestions(rawData);
+            persistentIncorrectQuestions = JSON.parse(localStorage.getItem('incorrectQuestions')) || [];
+            
+            setupEventListeners();
+            updateStartScreen();
+            showView('start');
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', init);
+
+        // --- Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+              .then(registration => {
+                console.log('ServiceWorker registration successful: ', registration.scope);
+              })
+              .catch(err => {
+                console.log('ServiceWorker registration failed: ', err);
+              });
+          });
+        }
+    </script>
+</body>
+</html>
