@@ -44,6 +44,11 @@
         .bank-item {
             @apply bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700;
         }
+        #progress-circle-foreground {
+            transition: stroke-dashoffset 0.5s ease-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 flex items-center justify-center min-h-screen p-4">
@@ -52,10 +57,27 @@
         
         <!-- Start Screen -->
         <div id="start-screen">
-            <div class="text-center mb-8">
+            <div class="text-center mb-6">
                 <h1 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-2">永續發展證照</h1>
                 <p class="text-lg text-gray-500 dark:text-gray-400">刷題練習</p>
             </div>
+            
+            <!-- Progress Circle -->
+            <div class="mb-6 flex flex-col items-center">
+                <div class="relative w-32 h-32">
+                    <svg class="w-full h-full" viewBox="0 0 100 100">
+                        <!-- Background circle -->
+                        <circle class="text-gray-200 dark:text-gray-700" stroke-width="10" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50"/>
+                        <!-- Foreground circle -->
+                        <circle id="progress-circle-foreground" class="text-blue-600 dark:text-blue-500" stroke-width="10" stroke-linecap="round" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50"/>
+                    </svg>
+                    <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                        <span id="progress-circle-text" class="text-2xl font-bold text-gray-700 dark:text-gray-200">0%</span>
+                    </div>
+                </div>
+                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">完成度</p>
+            </div>
+
             <div class="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-xl space-y-4">
                 <button id="start-quiz-btn" class="main-btn border-l-4 border-blue-500">
                     <div>
@@ -346,11 +368,17 @@
         const backToMenuBtnResult = document.getElementById('back-to-menu-btn-result');
         const bankContent = document.getElementById('bank-content');
         const backToMenuBtnBank = document.getElementById('back-to-menu-btn-bank');
+        
+        // New elements for progress circle
+        const progressCircleForeground = document.getElementById('progress-circle-foreground');
+        const progressCircleText = document.getElementById('progress-circle-text');
+
 
         let allQuestions = [];
         let currentQuizQuestions = [];
         let sessionIncorrectQuestions = [];
         let persistentIncorrectQuestions = [];
+        let persistentCorrectQuestions = []; // New state for correct answers
         let currentQuestionIndex = 0;
         let score = 0;
 
@@ -494,7 +522,14 @@
                 selectedButton.classList.add('correct');
                 feedbackTitle.textContent = '✅ 正確！';
                 feedbackTitle.className = 'font-bold text-lg mb-2 text-green-600 dark:text-green-400';
+                
+                // Add to correct list if not already present
+                if (!persistentCorrectQuestions.includes(question.id)) {
+                    persistentCorrectQuestions.push(question.id);
+                }
+                // Remove from incorrect list
                 persistentIncorrectQuestions = persistentIncorrectQuestions.filter(q => q.id !== question.id);
+
             } else {
                 selectedButton.classList.add('incorrect');
                 const correctButton = optionsContainer.querySelector(`[data-index='${correctIndex}']`);
@@ -502,6 +537,9 @@
                 feedbackTitle.textContent = '❌ 答錯了';
                 feedbackTitle.className = 'font-bold text-lg mb-2 text-red-600 dark:text-red-400';
                 sessionIncorrectQuestions.push(question);
+                
+                // If answered incorrectly, remove from correct list just in case
+                persistentCorrectQuestions = persistentCorrectQuestions.filter(id => id !== question.id);
             }
 
             feedbackExplanation.textContent = question.explanation;
@@ -520,19 +558,23 @@
             if (currentQuestionIndex < currentQuizQuestions.length) {
                 displayQuestion();
             } else {
-                mergeAndSaveIncorrectQuestions();
+                saveProgress();
                 showResults();
             }
         }
-
-        function mergeAndSaveIncorrectQuestions() {
+        
+        function saveProgress() {
+             // Merge session incorrect questions into the persistent list
             sessionIncorrectQuestions.forEach(q => {
                 if (!persistentIncorrectQuestions.some(piq => piq.id === q.id)) {
                     persistentIncorrectQuestions.push(q);
                 }
             });
+            // Save both correct and incorrect lists to localStorage
+            localStorage.setItem('correctQuestions', JSON.stringify(persistentCorrectQuestions));
             localStorage.setItem('incorrectQuestions', JSON.stringify(persistentIncorrectQuestions));
         }
+
 
         function showResults() {
             scoreText.textContent = `${score} / ${currentQuizQuestions.length}`;
@@ -554,10 +596,24 @@
             showView('bank');
         }
 
+        function updateProgressCircle() {
+            if (!progressCircleForeground || allQuestions.length === 0) return;
+
+            const radius = progressCircleForeground.r.baseVal.value;
+            const circumference = 2 * Math.PI * radius;
+            const percentage = (persistentCorrectQuestions.length / allQuestions.length) * 100;
+            const offset = circumference - (percentage / 100) * circumference;
+
+            progressCircleForeground.style.strokeDasharray = `${circumference} ${circumference}`;
+            progressCircleForeground.style.strokeDashoffset = offset;
+            progressCircleText.textContent = `${Math.round(percentage)}%`;
+        }
+
         function updateStartScreen() {
             reviewCountText.textContent = `您目前有 ${persistentIncorrectQuestions.length} 題錯題`;
             reviewIncorrectBtn.disabled = persistentIncorrectQuestions.length === 0;
             bankCountText.textContent = `共 ${allQuestions.length} 題`;
+            updateProgressCircle();
         }
 
         function setupEventListeners() {
@@ -586,6 +642,7 @@
         function init() {
             allQuestions = parseQuestions(rawData);
             persistentIncorrectQuestions = JSON.parse(localStorage.getItem('incorrectQuestions')) || [];
+            persistentCorrectQuestions = JSON.parse(localStorage.getItem('correctQuestions')) || [];
             
             setupEventListeners();
             updateStartScreen();
@@ -595,15 +652,9 @@
         // --- PWA Service Worker Registration (Embedded) ---
         function registerServiceWorker() {
             if ('serviceWorker' in navigator) {
-                // The Service Worker code is defined as a string.
                 const swCode = `
-                    // --- Settings ---
-                    // !!! VERY IMPORTANT !!!
-                    // Replace 'sustainable-quiz-pwa' with your own GitHub Repository name.
                     const REPO_NAME = 'sustainable-quiz-pwa';
-                    const CACHE_NAME = \`sustainable-quiz-pwa-v4\`; // Bump version to v4 to ensure update
-
-                    // Combine to create the full paths for caching
+                    const CACHE_NAME = \`sustainable-quiz-pwa-v4\`; 
                     const BASE_URL = \`/\${REPO_NAME}/\`;
                     const urlsToCache = [
                       BASE_URL,
@@ -611,10 +662,6 @@
                       \`\${BASE_URL}icons/icon-192x192.png\`,
                       \`\${BASE_URL}icons/icon-512x512.png\`
                     ];
-
-                    // --- Service Worker Core Logic ---
-
-                    // 1. Install Service Worker
                     self.addEventListener('install', event => {
                       event.waitUntil(
                         caches.open(CACHE_NAME).then(cache => {
@@ -623,14 +670,11 @@
                         })
                       );
                     });
-
-                    // 2. Activate Service Worker and clear old caches
                     self.addEventListener('activate', event => {
                       event.waitUntil(
                         caches.keys().then(cacheNames => {
                           return Promise.all(
                             cacheNames.map(cacheName => {
-                              // If the cache name is not the current version, delete it
                               if (cacheName !== CACHE_NAME) {
                                 console.log('Deleting old cache:', cacheName);
                                 return caches.delete(cacheName);
@@ -641,28 +685,21 @@
                       );
                       return self.clients.claim();
                     });
-
-                    // 3. Intercept network requests
                     self.addEventListener('fetch', event => {
                       event.respondWith(
                         caches.match(event.request).then(response => {
-                          // If it's in the cache, return it
                           if (response) {
                             return response;
                           }
-                          // If not in cache, fetch from the network
                           return fetch(event.request);
                         })
                       );
                     });
                 `;
                 
-                // Create a Blob from the SW code string
                 const blob = new Blob([swCode], { type: 'application/javascript' });
-                // Create an object URL from the Blob
                 const swUrl = URL.createObjectURL(blob);
 
-                // Register the Service Worker using the object URL
                 navigator.serviceWorker.register(swUrl)
                     .then(registration => {
                         console.log('Embedded ServiceWorker registration successful: ', registration.scope);
