@@ -1,24 +1,22 @@
 {
-  "short_name": "永續刷題",
   "name": "永續發展證照刷題 App",
-  "description": "一個集結了氣候變遷、淨零碳排、碳足跡等主題的證照刷題工具。",
+  "short_name": "永續刷題",
+  "description": "一個用來練習永續發展相關證照的刷題庫 App。",
+  "start_url": "/sustainable-quiz-pwa/",
+  "scope": "/sustainable-quiz-pwa/",
+  "display": "standalone",
+  "background_color": "#f0f2f5",
+  "theme_color": "#059669",
   "icons": [
     {
-      "src": "/sustainable-quiz-pwa/icons/icon-192x192.png",
-      "type": "image/png",
+      "src": "icons/icon-192x192.png",
       "sizes": "192x192",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "/sustainable-quiz-pwa/icons/icon-512x512.png",
-      "type": "image/png",
+      "src": "icons/icon-512x512.png",
       "sizes": "512x512",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
-  ],
-  "start_url": "/sustainable-quiz-pwa/",
-  "display": "standalone",
-  "scope": "/sustainable-quiz-pwa/",
-  "theme_color": "#059669",
-  "background_color": "#ffffff"
+  ]
 }

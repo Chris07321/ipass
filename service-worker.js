@@ -1,55 +1,58 @@
-// 定義快取名稱和需要快取的檔案
-const CACHE_NAME = 'sustainable-quiz-pwa-v2';
+// --- 設定 ---
+// !!! 非常重要 !!!
+// 請將 'sustainable-quiz-pwa' 換成你自己的 GitHub 儲存庫(Repository)名稱。
+const REPO_NAME = 'sustainable-quiz-pwa';
+const CACHE_NAME = `sustainable-quiz-pwa-v3`; // 將版本升級到 v3
+
+// 組合出需要快取的完整檔案路徑
+const BASE_URL = `/${REPO_NAME}/`;
 const urlsToCache = [
-  '/sustainable-quiz-pwa/',
-  '/sustainable-quiz-pwa/index.html',
-  '/sustainable-quiz-pwa/icons/icon-192x192.png',
-  '/sustainable-quiz-pwa/icons/icon-512x512.png'
+  BASE_URL,
+  `${BASE_URL}index.html`,
+  `${BASE_URL}icons/icon-192x192.png`,
+  `${BASE_URL}icons/icon-512x512.png`
 ];
 
+// --- Service Worker 核心邏輯 ---
+
 // 1. 安裝 Service Worker
-// 當 PWA 被安裝時觸發，開啟快取並將檔案存入
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('Opened cache and caching files');
+      return cache.addAll(urlsToCache);
+    })
   );
 });
 
-// 2. 啟用 Service Worker 並清理舊快取
-// 這能確保使用者總是用到最新版本的快取
+// 2. 啟用 Service Worker 並清除舊快取
 self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            // 刪除不是目前版本的快取
+          // 如果快取名稱不是目前的版本，就刪除它
+          if (cacheName !== CACHE_NAME) {
+            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
+  return self.clients.claim();
 });
 
 // 3. 攔截網路請求
-// 當 App 發出任何請求 (如載入頁面、圖片) 時觸發
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // 如果快取中有對應的檔案，就直接從快取回傳
-        if (response) {
-          return response;
-        }
-        // 如果快取中沒有，才向網路發出請求
-        return fetch(event.request);
+    caches.match(event.request).then(response => {
+      // 如果快取中有，就直接回傳
+      if (response) {
+        return response;
       }
-    )
+      // 如果快取中沒有，就從網路請求
+      return fetch(event.request);
+    })
   );
 });
