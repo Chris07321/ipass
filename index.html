@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>永續發展證照刷題 App</title>
-    <!-- 以下是新增的 PWA 相關標籤 -->
+    
+    <!-- PWA 核心標籤 -->
     <meta name="theme-color" content="#059669"/>
-    <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
+    <!-- 內嵌的 Manifest -->
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIuaWsOWAvOivt+aWhyDmsL3ngb3np5HpopHntrEgQXBwIiwKICAic2hvcnRfbmFtZSI6ICLmsL3np5HpopEiLAogICJkZXNjcmlwdGlvbiI6ICLkuIDlgLrouqvnnYDkv6HkvY3msL3np5HpopHnp5HpopHntrEgQXBwLuS7o+WHu+WPsOe7hOS4gOS4qumZkOWFrOWPuC4iLAogICJzdGFydF91cmwiOiAiL3N1c3RhaW5hYmxlLXF1aXotcHdhLyIsCiAgInNjb3BlIjogIi9zdXN0YWluYWJsZS1xdWl6LXB3YS8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmMDBmMjY1IiwKICAidGhlbWVfY29sb3IiOiAiIzA1OTY2OSIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImljb25zL2ljb24tMTkyeDE5Mi5wbmciLAogICAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0sCiAgICB7CiAgICAgICJzcmMiOiAiaWNvbnMvaWNvbi01MTJ4NTEyLnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIgogICAgfQogIF0KfQo=">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -142,6 +146,7 @@
     </div>
 
     <script>
+        // --- App Logic ---
         const QUIZ_LENGTH = 30;
         const rawData = `
 "1. 2023年全球年平均氣溫比工業化前（1850-1900年）高多少？\nA. 1.15°C\nB. 1.45°C\nC. 1.75°C\nD. 2.0°C",B,"根據簡報，2023年全球年平均氣溫比工業化前高1.45±0.12°C。"
@@ -198,7 +203,7 @@
 "RE100 計畫的主要目標是?\nA. 降低企業稅負\nB. 促使企業改用100%再生能源\nC. 增加企業碳排放\nD. 幫助企業提高市場競爭力",B,"RE100是一項全球性的企業再生能源倡議，參與企業承諾在2050年前達成100%使用再生能源的目標。"
 "產品類別規則(PCR)在碳足跡計算中的作用是?\nA. 訂定特定產品類別的碳足跡計算方法\nB. 規定企業稅率\nC. 控制市場價格\nD. 設定產品的生產數量",A,"產品類別規則 (Product Category Rules, PCR) 針對特定產品類別，提供一致性的生命週期評估與碳足跡計算方法論，確保比較基礎的一致性。"
 "生命週期衝擊評估(LCIA)的主要目的是?\nA. 評估LCA 盤查數據對環境的潛在影響\nB. 計算企業的盈利能力\nC. 評估企業的市場價值\nD. 測試企業的產品品質",A,"生命週期衝擊評估 (Life Cycle Impact Assessment, LCIA) 是將盤查清單中的數據（如資源使用、汙染物排放）轉化為對環境的潛在影響，例如全球暖化、酸雨等。"
-"碳足跡與碳盤查的主要區別為何?\nA. 碳足跡關注產品,碳盤查關注企業或組織\nB. 碳盤查僅適用於發電廠\nC. 碳足跡僅適用於食品產業\nD. 碳盤查與碳足跡無關",A,"碳足跡通常針對特定「產品或服務」的整個生命週期；而組織層級的碳盤查則關注整個「企業或組織」的營運邊界。"
+"碳足跡與碳盤查的主要區別為何?\nA. 碳足跡關注產品,碳盤查關注企業或組織\nB. 碳盤查僅適用於發電廠\nC. 碳足跡僅適用於食品產業\nD. 碳盤查與碳足跡無關",A,"碳足跡通常針對特定「產品或服務」的整個生命週期；而組織層級的碳盤查則關注整個「企業或組織」的營運邊。"
 "聯合國氣候變化綱要公約於哪一年通過?\nA. 1988年\nB. 1992年\nC. 1995年\nD. 2000年",B,"《聯合國氣候變化綱要公約》（UNFCCC）於1992年在里約地球高峰會上通過。"
 "巴黎協定的主要目標為限制全球暖化於多少度以下?\nA. 3°C\nB. 2°C\nC. 1°C\nD. 0.5°C",B,"《巴黎協定》的長期目標是將全球平均氣溫升幅控制在工業化前水平以上遠低於2°C之內，並努力將氣溫升幅限制在1.5°C之內。"
 "根據SBTi,若企業範疇三排放量超過多少比例則不得忽略?\nA. 20%\nB. 30%\nC. 40%\nD. 50%",C,"根據科學基礎減量目標倡議 (SBTi) 的標準，若企業的範疇三排放量佔總排放量（範疇1+2+3）的40%以上，則必須設定範疇三的減量目標。"
@@ -311,8 +316,8 @@
 "生命週期評估(LCA)的目的是什麼?\nA. 僅評估產品的經濟效益\nB. 評估產品或服務從原物料取得到最終處置的環境影響\nC. 評估員工的工作效率\nD. 計算產品的市場價值",B,"官方說明：LCA是一個系統性評估產品或服務在其整個生命週期中對環境潛在衝擊的工具。"
 "在生命週期評估中,目標與範疇界定的重要性是什麼?\nA. 決定產品的價格\nB. 界定評估的範圍和目的,確保評估結果的有效應用\nC. 選擇適合的廣告平台\nD. 計算生產成本",B,"官方說明：此階段是LCA的基礎，明確定義了研究的目的、範圍、功能單位、系統邊界等，決定了整個評估的方向和深度。"
         `;
-
-        // --- DOM ELEMENTS ---
+        
+        // DOM Elements and App State... (same as before)
         const views = {
             start: document.getElementById('start-screen'),
             quiz: document.getElementById('quiz-screen'),
@@ -342,7 +347,6 @@
         const bankContent = document.getElementById('bank-content');
         const backToMenuBtnBank = document.getElementById('back-to-menu-btn-bank');
 
-        // --- STATE ---
         let allQuestions = [];
         let currentQuizQuestions = [];
         let sessionIncorrectQuestions = [];
@@ -350,12 +354,7 @@
         let currentQuestionIndex = 0;
         let score = 0;
 
-        // --- FUNCTIONS ---
-
-        /**
-         * Shows a specific view and hides others.
-         * @param {string} viewName - The name of the view to show ('start', 'quiz', 'result', 'bank').
-         */
+        // Functions (parseQuestions, shuffleArray, startQuiz, etc. are the same as before)
         function showView(viewName) {
             Object.values(views).forEach(view => view.classList.add('hidden'));
             if (views[viewName]) {
@@ -363,11 +362,6 @@
             }
         }
 
-        /**
-         * Parses the raw data string into an array of question objects.
-         * @param {string} data The raw string containing all question data.
-         * @returns {Array<Object>} An array of question objects with unique IDs.
-         */
         function parseQuestions(data) {
             const records = data.trim().split(/\n(?=")/);
             const parsedQuestions = [];
@@ -419,10 +413,6 @@
             return parsedQuestions;
         }
 
-        /**
-         * Shuffles an array in place using the Fisher-Yates algorithm.
-         * @param {Array} array The array to shuffle.
-         */
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -430,10 +420,6 @@
             }
         }
         
-        /**
-         * Starts a quiz session.
-         * @param {string} mode - 'normal', 'review_all', or 'review_session'.
-         */
         function startQuiz(mode = 'normal') {
             score = 0;
             currentQuestionIndex = 0;
@@ -468,9 +454,6 @@
             displayQuestion();
         }
 
-        /**
-         * Displays the current question and options.
-         */
         function displayQuestion() {
             optionsContainer.innerHTML = '';
             feedbackArea.classList.add('hidden');
@@ -498,10 +481,6 @@
             });
         }
 
-        /**
-         * Handles the user selecting an option.
-         * @param {Event} e The click event.
-         */
         function handleOptionSelect(e) {
             const selectedButton = e.currentTarget;
             const selectedIndex = parseInt(selectedButton.dataset.index);
@@ -515,7 +494,6 @@
                 selectedButton.classList.add('correct');
                 feedbackTitle.textContent = '✅ 正確！';
                 feedbackTitle.className = 'font-bold text-lg mb-2 text-green-600 dark:text-green-400';
-                // If a question from the review list is answered correctly, remove it.
                 persistentIncorrectQuestions = persistentIncorrectQuestions.filter(q => q.id !== question.id);
             } else {
                 selectedButton.classList.add('incorrect');
@@ -537,9 +515,6 @@
             nextBtn.classList.remove('hidden');
         }
 
-        /**
-         * Moves to the next question or shows the results.
-         */
         function handleNext() {
             currentQuestionIndex++;
             if (currentQuestionIndex < currentQuizQuestions.length) {
@@ -550,9 +525,6 @@
             }
         }
 
-        /**
-         * Merges session incorrect questions into the persistent list and saves to localStorage.
-         */
         function mergeAndSaveIncorrectQuestions() {
             sessionIncorrectQuestions.forEach(q => {
                 if (!persistentIncorrectQuestions.some(piq => piq.id === q.id)) {
@@ -562,9 +534,6 @@
             localStorage.setItem('incorrectQuestions', JSON.stringify(persistentIncorrectQuestions));
         }
 
-        /**
-         * Displays the final score and results screen.
-         */
         function showResults() {
             scoreText.textContent = `${score} / ${currentQuizQuestions.length}`;
             incorrectCountText.textContent = `${sessionIncorrectQuestions.length} 題答錯`;
@@ -572,9 +541,6 @@
             showView('result');
         }
 
-        /**
-         * Renders the entire question bank for viewing.
-         */
         function showQuestionBank() {
             bankContent.innerHTML = allQuestions.map((q, index) => `
                 <div class="bank-item">
@@ -588,18 +554,12 @@
             showView('bank');
         }
 
-        /**
-         * Updates the UI elements on the start screen.
-         */
         function updateStartScreen() {
             reviewCountText.textContent = `您目前有 ${persistentIncorrectQuestions.length} 題錯題`;
             reviewIncorrectBtn.disabled = persistentIncorrectQuestions.length === 0;
             bankCountText.textContent = `共 ${allQuestions.length} 題`;
         }
 
-        /**
-         * Sets up all event listeners for the app.
-         */
         function setupEventListeners() {
             startQuizBtn.addEventListener('click', () => startQuiz('normal'));
             reviewIncorrectBtn.addEventListener('click', () => startQuiz('review_all'));
@@ -623,9 +583,6 @@
             backToMenuBtnBank.addEventListener('click', () => showView('start'));
         }
 
-        /**
-         * Initializes the application.
-         */
         function init() {
             allQuestions = parseQuestions(rawData);
             persistentIncorrectQuestions = JSON.parse(localStorage.getItem('incorrectQuestions')) || [];
@@ -635,21 +592,93 @@
             showView('start');
         }
 
-        // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', init);
+        // --- PWA Service Worker Registration (Embedded) ---
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                // The Service Worker code is defined as a string.
+                const swCode = `
+                    // --- Settings ---
+                    // !!! VERY IMPORTANT !!!
+                    // Replace 'sustainable-quiz-pwa' with your own GitHub Repository name.
+                    const REPO_NAME = 'sustainable-quiz-pwa';
+                    const CACHE_NAME = \`sustainable-quiz-pwa-v4\`; // Bump version to v4 to ensure update
 
-        // --- Service Worker Registration ---
-        if ('serviceWorker' in navigator) {
-          window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js')
-              .then(registration => {
-                console.log('ServiceWorker registration successful: ', registration.scope);
-              })
-              .catch(err => {
-                console.log('ServiceWorker registration failed: ', err);
-              });
-          });
+                    // Combine to create the full paths for caching
+                    const BASE_URL = \`/\${REPO_NAME}/\`;
+                    const urlsToCache = [
+                      BASE_URL,
+                      \`\${BASE_URL}index.html\`,
+                      \`\${BASE_URL}icons/icon-192x192.png\`,
+                      \`\${BASE_URL}icons/icon-512x512.png\`
+                    ];
+
+                    // --- Service Worker Core Logic ---
+
+                    // 1. Install Service Worker
+                    self.addEventListener('install', event => {
+                      event.waitUntil(
+                        caches.open(CACHE_NAME).then(cache => {
+                          console.log('Opened cache and caching files');
+                          return cache.addAll(urlsToCache);
+                        })
+                      );
+                    });
+
+                    // 2. Activate Service Worker and clear old caches
+                    self.addEventListener('activate', event => {
+                      event.waitUntil(
+                        caches.keys().then(cacheNames => {
+                          return Promise.all(
+                            cacheNames.map(cacheName => {
+                              // If the cache name is not the current version, delete it
+                              if (cacheName !== CACHE_NAME) {
+                                console.log('Deleting old cache:', cacheName);
+                                return caches.delete(cacheName);
+                              }
+                            })
+                          );
+                        })
+                      );
+                      return self.clients.claim();
+                    });
+
+                    // 3. Intercept network requests
+                    self.addEventListener('fetch', event => {
+                      event.respondWith(
+                        caches.match(event.request).then(response => {
+                          // If it's in the cache, return it
+                          if (response) {
+                            return response;
+                          }
+                          // If not in cache, fetch from the network
+                          return fetch(event.request);
+                        })
+                      );
+                    });
+                `;
+                
+                // Create a Blob from the SW code string
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                // Create an object URL from the Blob
+                const swUrl = URL.createObjectURL(blob);
+
+                // Register the Service Worker using the object URL
+                navigator.serviceWorker.register(swUrl)
+                    .then(registration => {
+                        console.log('Embedded ServiceWorker registration successful: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('Embedded ServiceWorker registration failed: ', err);
+                    });
+            }
         }
+        
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            registerServiceWorker();
+        });
+
     </script>
 </body>
 </html>
