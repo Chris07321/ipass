@@ -1,12 +1,10 @@
 // 定義快取名稱和需要快取的檔案
-const CACHE_NAME = 'sustainable-quiz-pwa-v2'; // 更新版本號以觸發更新
+const CACHE_NAME = 'sustainable-quiz-pwa-v2';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  // 注意：您的 CSS 和 JS 是寫在 HTML 裡的，所以不用快取外部檔案
-  // 如果您有外部 CSS/JS，也要加進來
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/sustainable-quiz-pwa/',
+  '/sustainable-quiz-pwa/index.html',
+  '/sustainable-quiz-pwa/icons/icon-192x192.png',
+  '/sustainable-quiz-pwa/icons/icon-512x512.png'
 ];
 
 // 1. 安裝 Service Worker
@@ -22,6 +20,7 @@ self.addEventListener('install', event => {
 });
 
 // 2. 啟用 Service Worker 並清理舊快取
+// 這能確保使用者總是用到最新版本的快取
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
@@ -29,6 +28,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
+            // 刪除不是目前版本的快取
             return caches.delete(cacheName);
           }
         })

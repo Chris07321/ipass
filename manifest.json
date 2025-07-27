@@ -4,21 +4,21 @@
   "description": "一個集結了氣候變遷、淨零碳排、碳足跡等主題的證照刷題工具。",
   "icons": [
     {
-      "src": "icons/icon-192x192.png",
+      "src": "/sustainable-quiz-pwa/icons/icon-192x192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/icon-512x512.png",
+      "src": "/sustainable-quiz-pwa/icons/icon-512x512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],
-  "start_url": "/index.html",
+  "start_url": "/sustainable-quiz-pwa/",
   "display": "standalone",
-  "scope": "/",
+  "scope": "/sustainable-quiz-pwa/",
   "theme_color": "#059669",
   "background_color": "#ffffff"
 }
